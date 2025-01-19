@@ -11,7 +11,7 @@ export const createOrder = async (req, res, next) => {
       const { gigId } = req.body;
       const prisma = new PrismaClient();
       const gig = await prisma.gigs.findUnique({
-        where: { id: parseInt(gigId) },
+        where: { id: (gigId) },
       });
       const paymentIntent = await stripe.paymentIntents.create({
         amount: gig?.price * 100,
@@ -80,7 +80,7 @@ export const getSellerOrders = async (req, res, next) => {
         where: {
           gig: {
             createdBy: {
-              id: parseInt(req.userId),
+              id: (req.userId),
             },
           },
           isCompleted: true,

@@ -72,10 +72,17 @@ export const getUserAuthGigs = async (req, res, next) => {
 
 export const getGigData = async (req, res, next) => {
   try {
+
+    const { gigId } = req.params;
+    
+    // if (!gigId || !ObjectId.isValid(gigId)) {
+    //   return res.status(400).send("Valid gigId is required.");
+    // }
+
     if (req.params.gigId) {
       const prisma = new PrismaClient();
       const gig = await prisma.gigs.findUnique({
-        where: { id: parseInt(req.params.gigId) },
+        where: { id: gigId },
         include: {
           reviews: {
             include: {
@@ -112,6 +119,9 @@ export const getGigData = async (req, res, next) => {
         .status(200)
         .json({ gig: { ...gig, totalReviews, averageRating } });
     }
+    else{
+      res.status(400).send("gig not found")
+    }
     return res.status(400).send("GigId should be required.");
   } catch (err) {
     console.log(err);
@@ -145,10 +155,10 @@ export const editGig = async (req, res, next) => {
         } = req.query;
         const prisma = new PrismaClient();
         const oldData = await prisma.gigs.findUnique({
-          where: { id: parseInt(req.params.gigId) },
+          where: { id: (req.params.gigId) },
         });
         await prisma.gigs.update({
-          where: { id: parseInt(req.params.gigId) },
+          where: { id: (req.params.gigId) },
           data: {
             title,
             description,
@@ -158,7 +168,7 @@ export const editGig = async (req, res, next) => {
             price: parseInt(price),
             shortDesc,
             revisions: parseInt(revisions),
-            createdBy: { connect: { id: parseInt(req.userId) } },
+            createdBy: { connect: { id: (req.userId) } },
             images: fileNames,
           },
         });
@@ -224,8 +234,8 @@ const checkOrder = async (userId, gigId) => {
     const prisma = new PrismaClient();
     const hasUserOrderedGig = await prisma.orders.findFirst({
       where: {
-        buyerId: parseInt(userId),
-        gigId: parseInt(gigId),
+        buyerId: (userId),
+        gigId: (gigId),
         isCompleted: true,
       },
     });
@@ -260,8 +270,8 @@ export const addReview = async (req, res, next) => {
             data: {
               rating: req.body.rating,
               reviewText: req.body.reviewText,
-              reviewer: { connect: { id: parseInt(req?.userId) } },
-              gig: { connect: { id: parseInt(req.params.gigId) } },
+              reviewer: { connect: { id: (req?.userId) } },
+              gig: { connect: { id: (req.params.gigId) } },
             },
             include: {
               reviewer: true,

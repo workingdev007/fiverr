@@ -1,18 +1,16 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+// This is your Prisma schema file for MongoDB
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
 }
 
 model User {
-  id Int        @id @default(autoincrement())
-  email String  @unique
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  email String @unique
   password String 
   isSocialLogin Boolean? @default(false)
   username String? @unique
@@ -29,7 +27,7 @@ model User {
 }
 
 model Gigs {
-  id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   title String 
   description String
   category String
@@ -41,45 +39,44 @@ model Gigs {
   createdAt DateTime @default(now())
   images String[]
   createdBy User @relation(fields: [userId], references: [id])
-  userId Int
+  userId String @db.ObjectId
   orders Orders[]
   reviews Reviews[]
 }
 
-
 model Orders {
-  id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   buyer User @relation(fields: [buyerId],references: [id])
-  buyerId Int
+  buyerId String @db.ObjectId
   paymentIntent String @unique
   isCompleted Boolean @default(false)
   gig Gigs @relation(fields:[gigId],references: [id])
-  gigId Int
+  gigId String @db.ObjectId
   price Int
   messages Message[]
 }
 
 model Reviews {
-  id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   rating Int
   reviewText String?
   gig Gigs @relation(fields:[gigId],references: [id])
-  gigId Int
+  gigId String @db.ObjectId
   reviewer User @relation(fields: [reviewerId],references: [id])
-  reviewerId Int
+  reviewerId String @db.ObjectId
 } 
 
 model Message {
-  id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   text String
   createdAt DateTime @default(now())
   isRead Boolean @default(false)
   sender User @relation("sentMessages", fields: [senderId], references: [id])
-  senderId Int
+  senderId String @db.ObjectId
   recipient User @relation("receivedMessages", fields: [recipientId], references: [id])
-  recipientId Int
+  recipientId String @db.ObjectId
   order Orders @relation(fields: [orderId], references: [id])
-  orderId Int
+  orderId String @db.ObjectId
 }

@@ -15,17 +15,17 @@ export const addMessage = async (req, res, next) => {
           sender: {
             connect: {
               // @ts-expect-error
-              id: parseInt(req.userId),
+              id: (req.userId),
             },
           },
           recipient: {
             connect: {
-              id: parseInt(req.body.recipentId),
+              id: (req.body.recipentId),
             },
           },
           order: {
             connect: {
-              id: parseInt(req.params.orderId),
+              id: (req.params.orderId),
             },
           },
           text: req.body.message,
@@ -49,7 +49,7 @@ export const getMessages = async (req, res, next) => {
       const messages = await prisma.message.findMany({
         where: {
           order: {
-            id: parseInt(req.params.orderId),
+            id: (req.params.orderId),
           },
         },
         orderBy: {
@@ -59,15 +59,15 @@ export const getMessages = async (req, res, next) => {
 
       await prisma.message.updateMany({
         where: {
-          orderId: parseInt(req.params.orderId),
-          recipientId: parseInt(req.userId),
+          orderId: (req.params.orderId),
+          recipientId: (req.userId),
         },
         data: {
           isRead: true,
         },
       });
       const order = await prisma.orders.findUnique({
-        where: { id: parseInt(req.params.orderId) },
+        where: { id: (req.params.orderId) },
         include: { gig: true },
       });
       let recipentId;
@@ -112,7 +112,7 @@ export const markAsRead = async (req, res, next) => {
     if (req.userId && req.params.messageId) {
       const prisma = new PrismaClient();
       await prisma.message.update({
-        where: { id: parseInt(req.params.messageId) },
+        where: { id: (req.params.messageId) },
         data: { isRead: true },
       });
       return res.status(200).send("Message mark as read.");
